@@ -3,7 +3,9 @@ const Router = express.Router();
 
 const Libro = require('../models/Libro');
 
-Router.get('/', async (req, res) => {
+const { requiredScopes } = require("express-oauth2-jwt-bearer");
+
+Router.get('/', requiredScopes("read:libros"), async (req, res) => {
     try {
         const libros = await Libro.find();
         res.json(libros);
@@ -12,7 +14,7 @@ Router.get('/', async (req, res) => {
     }
 });
 
-Router.post('/', async (req, res) => {
+Router.post('/', requiredScopes("write:libros"), async (req, res) => {
     try {
         const nuevoLibro = new Libro(req.body);
         await nuevoLibro.save();
@@ -23,7 +25,7 @@ Router.post('/', async (req, res) => {
 });
 
 
-Router.put('/:id', async (req, res) => {
+Router.put('/:id', requiredScopes("write:libros"), async (req, res) => {
     try {
         const Libro = await Libro.findByIdAndUpdate(req.params.id, req.body,
             {
@@ -35,7 +37,7 @@ Router.put('/:id', async (req, res) => {
     }
 });
 
-Router.delete('/:id', async (req, res) => {
+Router.delete('/:id', requiredScopes('write:libros'), async (req, res) => {
     try {
         await Libro.findByIdAndDelete(req.params.id);
         res.json({ message: 'Libro eliminado' });
